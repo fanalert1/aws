@@ -1,0 +1,89 @@
+https://github.com/alwex/php-casperjs
+
+3) Intalled PhantomJS using command "npm install -g phantomjs"
+4) Install CasperJS  using "npm install -g casperjs"
+5) Creating Folder path for CasperPHP
+          Path - src/Browser/Casper.php
+          
+check the casper js installed path and add in the casper.php
+
+in casper.php
+private $_path2casper = '/usr/local/bin/'; //path to CasperJS
+
+
+
+now create the following caspertest.php and test it. It should be in the same folder where src resides
+
+<?php
+
+//require_once(__DIR__ . '/vendor/autoload.php');
+require_once(__DIR__ . '/src/Browser/Casper.php');
+use Browser\Casper;
+
+$casper = new Casper();
+
+// forward options to phantomJS
+// for exemple to ignore ssl errors
+$casper->setOptions(array(
+    'ignore-ssl-errors' => 'yes'
+));
+
+// navigate to google web page
+$casper->start('http://www.google.com');
+
+// fill the search form and submit it
+$casper->fillForm(
+        'form[action="/search"]',
+        array(
+                'q' => 'search'
+        ),
+        true);
+
+// wait for 5 seconds (have a cofee)
+$casper->wait(5000);
+
+// wait for text if needed for 3 seconds
+$casper->waitForText('Yahoo', 3000);
+
+// or wait for selector
+$casper->waitForSelector('.gbqfb', 3000);
+
+// make a screenshot of the google logo
+$casper->captureSelector('#hplogo', '/tmp/logo.png');
+
+// or take a screenshot of a custom area
+$casper->capture(
+    array(
+        'top' => 0,
+        'left' => 0,
+        'width' => 800,
+        'height' => 600
+    ),
+    '/tmp/custom-capture.png'
+);
+
+// click the first result
+$casper->click('h3.r a');
+
+// switch to the first iframe
+$casper->switchToChildFrame(0);
+
+// make some stuff inside the iframe
+$casper->fillForm('#myForm', array(
+    'search' => 'my search',
+));
+
+// get back to parent
+$casper->switchToParentFrame();
+
+
+// run the casper script
+$casper->run();
+
+// check the urls casper get throught
+var_dump($casper->getRequestedUrls());
+
+// need to debug? just check the casper output
+var_dump($casper->getOutput());
+
+?>
